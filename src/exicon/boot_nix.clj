@@ -1,4 +1,4 @@
-(ns sjmackenzie.boot-nix
+(ns exicon.boot-nix
   {:boot/export-tasks true}
   (:require
     [boot.core :as core :refer :all]
