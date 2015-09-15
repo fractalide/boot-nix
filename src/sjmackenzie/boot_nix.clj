@@ -37,23 +37,23 @@
     (let [repo-file-contents (find-repo-file file-path)
           repo-server (find-repo-server repo-file-contents)]
       (first repo-server)))
-  (defn create-url [jar]
+  (defn create-sh-cmd-params [jar]
     (let [file-path (string/join "/" (butlast (string/split jar #"/")))
           base-path (drop 5 (string/split file-path #"/"))
           base-url (str (extract-repo file-path) )
-          url (str base-url (string/join "/" base-path))]
-      url))
-  (defn destructure-dep [jar]
-    (let [extless-file-name (second (re-find #"(.*).jar" (last (string/split jar #"/"))))
-          exts [".jar" ".jar.sha1" ".pom" ".pom.sha1"]
-          base-url (create-url jar)
-          needed-files (str (string/join "\n"
-                                         (map #(str base-url "/" %)
-                                              (map #(str extless-file-name %) exts))) "\n")]
-      needed-files))
-  (defn extract-urls [deps]
-    (mapv #(destructure-dep %) deps))
+          sh-cmd-param (str base-url " " (string/join "/" base-path))]
+      sh-cmd-param))
+  (defn create-sh-params [jar]
+    (let [extless-basename (second (re-find #"(.*).jar" (last (string/split jar #"/"))))
+          file-extensions [".jar" ".jar.sha1" ".pom" ".pom.sha1"]
+          sh-cmd-params (create-sh-cmd-params jar)
+          sh-cmd-params-with-exts (str (string/join "\n"
+                                         (map #(str sh-cmd-params "/" %)
+                                              (map #(str extless-basename %) file-extensions))) "\n")]
+      sh-cmd-params-with-exts))
+  (defn shell-params []
+    (map #(create-sh-params %) resolved-deps))
   (defn write-nix-expression []
-    (spit "./deps.nix" (apply str (extract-urls resolved-deps))))
+    (spit "./.fetch-deps.sh" (apply str (shell-params))))
   (write-nix-expression)
   #_(pprint/pprint (core/get-env)))
