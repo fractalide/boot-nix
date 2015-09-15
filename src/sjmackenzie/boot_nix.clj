@@ -16,25 +16,31 @@
 
   (def repositories (apply hash-map (flatten (:repositories (core/get-env)))))
 
-  (def orig-repo-map (map (fn [[repo-alias desc]] (vector repo-alias (repo-url desc))) repositories))
+  (def orig-repo-map (map
+                       (fn [[repo-alias desc]] (vector repo-alias (repo-url desc)))
+                       repositories))
   (def extra-repos ["central" "https://repo1.maven.org/maven2/"])
   (def repo-map (conj orig-repo-map extra-repos ))
 
   (def resolved-deps
     (boot.pod/with-call-worker
-      (boot.aether/resolve-dependencies ~(core/get-env))))
+      (boot.aether/resolve-dependency-jars ~(core/get-env))))
 
-  (def repos {:maven "/_maven.repositories"
-              :remote "/_remote.repositories"})
+  (def repo-file-names
+    {:maven "/_maven.repositories"
+     :remote "/_remote.repositories"})
 
   (defn find-repo-file [file-path]
     (let [exists (fn [repo-file] (.exists (io/as-file (str file-path repo-file))))]
       (cond
-        (exists (:maven repos)) (slurp (str file-path (:maven repos)))
-        (exists (:remote repos)) (slurp (str file-path (:remote repos))))))
+        (exists (:maven repo-file-names)) (slurp (str file-path (:maven repo-file-names)))
+        (exists (:remote repo-file-names)) (slurp (str file-path (:remote repo-file-names))))))
 
   (defn find-repo-server [repo-file-contents]
-    (filter string? (map (fn [[k v]] (when (re-find (re-pattern k) repo-file-contents) v)) repo-map)))
+    (filter string?
+            (map
+              (fn [[k v]] (when (re-find (re-pattern k) repo-file-contents) v))
+              repo-map)))
 
   (defn extract-repo [file-path]
     (let [repo-file-contents (find-repo-file file-path)
@@ -48,12 +54,11 @@
           url (str base-url (string/join "/" base-path) "/" (last (string/split jar #"/")))]
       url))
 
-  (defn destructure-dep [dep]
-    (let [name+version (:dep dep)
-          fullname (str (first name+version))
-          shortname (second(string/split fullname #"/"))
-          version (str(second name+version))
-          jar (:jar dep)
+  (defn destructure-dep [jar]
+    (let [
+          jar-file-name (last (string/split jar #"/"))
+          extless-file-name (second (re-find #"(.*).jar" jar-file-name))
+          exts [".jar" ".jar.sha1" ".pom" ".pam.sha1"]
           base-url (create-url jar)
           ]
       base-url))
