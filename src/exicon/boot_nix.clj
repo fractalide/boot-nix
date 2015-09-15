@@ -10,9 +10,25 @@
 (deftask nixos
   "Creates a Nix Expression enumerating all this project's dependencies"
   []
+  (def shell-function
+    "
+source $stdenv/setup
+header \"fetching deps\"
+
+function fetchArtifact {
+  repoUrl=\"$1\"
+  repoPath=\"$2\"
+  url=\"$repoUrl/$repoPath\"
+  echo \"Fetching $url\"
+  mkdir -p $(dirname $out/$repoPath)
+  curl --fail --location --insecure --retry 3 --max-redirs 20 \"$url\" --output \"$out/$repoPath\"
+    # add -SL for artifacts behind a password wall
+}
+\n\n")
   (defn repo-url [repo-desc] (if (string? repo-desc) repo-desc (:url repo-desc)))
   (def repositories (apply hash-map (flatten (:repositories (core/get-env)))))
   (def orig-repo-map (map
+                       ; TODO: add repo password support
                        (fn [[repo-alias desc]] (vector repo-alias (repo-url desc)))
                        repositories))
   (def extra-repos ["central" "https://repo1.maven.org/maven2/"])
@@ -30,6 +46,7 @@
         (exists (:remote repo-file-names)) (slurp (str file-path (:remote repo-file-names))))))
   (defn find-repo-server [repo-file-contents]
     (filter string?
+            ; TODO: add repo password support
             (map
               (fn [[k v]] (when (re-find (re-pattern k) repo-file-contents) v))
               repo-map)))
@@ -41,7 +58,7 @@
     (let [file-path (string/join "/" (butlast (string/split jar #"/")))
           base-path (drop 5 (string/split file-path #"/"))
           base-url (str (extract-repo file-path) )
-          sh-cmd-param (str base-url " " (string/join "/" base-path))]
+          sh-cmd-param (str "fetchArtifact " base-url " " (string/join "/" base-path))]
       sh-cmd-param))
   (defn create-sh-params [jar]
     (let [extless-basename (second (re-find #"(.*).jar" (last (string/split jar #"/"))))
@@ -54,6 +71,6 @@
   (defn shell-params []
     (map #(create-sh-params %) resolved-deps))
   (defn write-nix-expression []
-    (spit "./.fetch-deps.sh" (apply str (shell-params))))
+    (spit "./.fetch-deps.sh"(str shell-function (apply str (shell-params)))))
   (write-nix-expression)
   #_(pprint/pprint (core/get-env)))
