@@ -1,7 +1,7 @@
 (ns exicon.boot-nix
   {:boot/export-tasks true}
   (:require
-    [boot.core :as core :refer [deftask]]
+    [boot.core :as core :refer [deftask with-pre-wrap]]
     [clojure.java.io :as io]
     [clojure.string :as string]
     [clojure.pprint :as pprint]
@@ -87,4 +87,6 @@
 (deftask nixos
   "Generates a NixOS Expression by enumerating over all this project's dependencies"
   []
-  (write-nix-expression))
+  (with-pre-wrap fileset
+    (write-nix-expression)
+    fileset))
