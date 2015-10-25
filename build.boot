@@ -5,7 +5,8 @@
 
 (require
   '[adzerk.bootlaces :refer :all]
-  '[exicon.boot-nix :refer :all])
+;  '[sjmackenzie.boot-nix :refer :all]
+  )
 
 (def +ver+ "0.1.0")
 (def +version+ (str +ver+ "-SNAPSHOT"))

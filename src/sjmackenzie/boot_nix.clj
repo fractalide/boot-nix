@@ -1,4 +1,4 @@
-(ns exicon.boot-nix
+(ns sjmackenzie.boot-nix
   {:boot/export-tasks true}
   (:require
     [boot.core :as core :refer [deftask with-pre-wrap]]

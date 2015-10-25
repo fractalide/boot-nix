@@ -14,10 +14,10 @@ Include this boot task into your project:
 
 ```
 (set-env!
-  :dependencies '[[exicon/boot-nix "0.1.0-SNAPSHOT"]])
+  :dependencies '[[sjmackenzie/boot-nix "0.1.0-SNAPSHOT"]])
 
 (require
-  '[exicon.boot-nix :refer [nixos]])
+  '[sjmackenzie.boot-nix :refer [nixos]])
 ```
 
 Run
