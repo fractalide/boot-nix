@@ -12,10 +12,10 @@
 (bootlaces! +version+)
 
 (task-options!
-  pom {:project     'exicon/boot-nix
+  pom {:project     'sjmackenzie/boot-nix
        :version     +version+
        :description "Boot task to create a deps.nix used for NixOS"
-       :url         "https://github.com/exicon/boot-nix"
-       :scm         {:url "https://github.com/exicon/boot-nix"}
+       :url         "https://github.com/sjmackenzie/boot-nix"
+       :scm         {:url "https://github.com/sjmackenzie/boot-nix"}
        :license     {"Eclipse Public License"
                      "http://www.eclipse.org/legal/epl-v10.html"}})
