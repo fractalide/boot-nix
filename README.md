@@ -14,10 +14,10 @@ Include this boot task into your project:
 
 ```
 (set-env!
-  :dependencies '[[sjmackenzie/boot-nix "0.1.0-SNAPSHOT"]])
+  :dependencies '[[fractalide/boot-nix "0.1.0-SNAPSHOT"]])
 
 (require
-  '[sjmackenzie.boot-nix :refer [nixos]])
+  '[fractalide.boot-nix :refer [nixos]])
 ```
 
 Run

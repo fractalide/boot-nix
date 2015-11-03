@@ -1,4 +1,4 @@
-(ns sjmackenzie.boot-nix
+(ns fractalide.boot-nix
   {:boot/export-tasks true}
   (:require
     [boot.core :as core :refer [deftask with-pre-wrap]]
@@ -82,11 +82,11 @@
   (map #(create-sh-params %) resolved-deps))
 
 (defn write-nix-expression []
-  (spit "./.fetch-deps.sh"(str shell-function (apply str (shell-params)))))
+  (spit "./.fetch-deps.sh"(str shell-function (apply str (shell-params)) "\n\nstopNest\n")))
 
 (deftask nixos
   "Generates a NixOS Expression by enumerating over all this project's dependencies"
   []
   (with-pre-wrap fileset
-    (write-nix-expression)
-    fileset))
+                 (write-nix-expression)
+                 fileset))
