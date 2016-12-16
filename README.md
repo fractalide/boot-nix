@@ -8,6 +8,10 @@ all the compile-time dependencies of the boot environment.
 Boot projects which use tasks which try to download dependencies at runtime will fail.
 
 
+## Maintenance
+
+I'm not actively maintaining this project, if you need to keep this tool updated I'm happy to make you a maintainer and I'll push your work to clojars on your signal.
+
 ## Usage
 
 Include this boot task into your project:
